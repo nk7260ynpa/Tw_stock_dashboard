@@ -1,22 +1,16 @@
 import { useEffect, useState } from 'react'
+import LaunchPad from './components/LaunchPad'
 import './App.css'
 
-interface Tool {
-  id: string
-  name: string
-  description: string
-  icon: string
-}
-
 function App() {
-  const [tools, setTools] = useState<Tool[]>([])
+  const [tools, setTools] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/v1/tools')
+    fetch('/api/tools')
       .then((res) => res.json())
       .then((data) => {
-        setTools(data.tools)
+        setTools(data)
         setLoading(false)
       })
       .catch(() => {
@@ -34,15 +28,7 @@ function App() {
         {loading ? (
           <p className="loading">載入中...</p>
         ) : (
-          <div className="launchpad-grid">
-            {tools.map((tool) => (
-              <div key={tool.id} className="tool-card">
-                <span className="tool-icon">{tool.icon}</span>
-                <h3 className="tool-name">{tool.name}</h3>
-                <p className="tool-description">{tool.description}</p>
-              </div>
-            ))}
-          </div>
+          <LaunchPad tools={tools} />
         )}
       </main>
     </div>

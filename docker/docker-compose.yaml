@@ -1,32 +1,13 @@
 services:
-  backend:
+  tw_stock_dashboard:
     build:
       context: ..
-      dockerfile: docker/Dockerfile.backend
-    container_name: tw-stock-backend
+      dockerfile: docker/Dockerfile
+    image: nk7260ynpa/tw_stock_dashboard:latest
+    container_name: tw_stock_dashboard
     ports:
-      - "${BACKEND_PORT:-8001}:8000"
+      - "8002:8000"
     volumes:
-      - ../backend:/app
       - ../logs:/app/logs
-    networks:
-      - tw-stock-net
-
-  frontend:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.frontend
-    container_name: tw-stock-frontend
-    ports:
-      - "5173:5173"
-    volumes:
-      - ../frontend:/app
-      - /app/node_modules
-    depends_on:
-      - backend
-    networks:
-      - tw-stock-net
-
-networks:
-  tw-stock-net:
-    driver: bridge
+    environment:
+      - PYTHONPATH=/app/src

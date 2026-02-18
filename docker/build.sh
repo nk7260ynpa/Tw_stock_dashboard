@@ -1,24 +1,19 @@
-#!/bin/bash
-# 建立台股儀表板 Docker images
+#!/usr/bin/env bash
+#
+# 建立 Docker image 的執行腳本。
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "${SCRIPT_DIR}")"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly PROJECT_DIR="$(dirname "${SCRIPT_DIR}")"
+readonly IMAGE_NAME="nk7260ynpa/tw_stock_dashboard"
+readonly IMAGE_TAG="latest"
 
-echo "=== 建立台股儀表板 Docker Images ==="
+echo "開始建立 Docker image: ${IMAGE_NAME}:${IMAGE_TAG}"
 
-echo "[1/2] 建立後端 image..."
 docker build \
-  -t tw-stock-backend:latest \
-  -f "${SCRIPT_DIR}/Dockerfile.backend" \
-  "${PROJECT_ROOT}"
+  -t "${IMAGE_NAME}:${IMAGE_TAG}" \
+  -f "${SCRIPT_DIR}/Dockerfile" \
+  "${PROJECT_DIR}"
 
-echo "[2/2] 建立前端 image..."
-docker build \
-  -t tw-stock-frontend:latest \
-  -f "${SCRIPT_DIR}/Dockerfile.frontend" \
-  "${PROJECT_ROOT}"
-
-echo "=== Docker Images 建立完成 ==="
-docker images | grep tw-stock
+echo "Docker image 建立完成: ${IMAGE_NAME}:${IMAGE_TAG}"

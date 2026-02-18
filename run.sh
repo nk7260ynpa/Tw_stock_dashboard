@@ -1,32 +1,28 @@
-#!/bin/bash
-# 啟動台股儀表板服務
+#!/usr/bin/env bash
+#
+# 啟動主程式的執行腳本。
+# 透過 Docker container 執行，並掛載 logs 資料夾。
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly IMAGE_NAME="nk7260ynpa/tw_stock_dashboard"
+readonly IMAGE_TAG="latest"
+readonly CONTAINER_NAME="tw_stock_dashboard"
 
-# 確保 logs 資料夾存在
+# 確保 logs 目錄存在
 mkdir -p "${SCRIPT_DIR}/logs"
 
-echo "=== 啟動台股儀表板 ==="
-
-# 載入環境變數（如果 .env 存在）
-if [[ -f "${SCRIPT_DIR}/.env" ]]; then
-  echo "載入 .env 環境變數..."
-  set -a
-  source "${SCRIPT_DIR}/.env"
-  set +a
+# 移除已存在的同名容器（若有）
+if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+  docker rm -f "${CONTAINER_NAME}" > /dev/null 2>&1
 fi
 
-# 使用 docker compose 啟動服務
-docker compose -f "${SCRIPT_DIR}/docker/docker-compose.yaml" \
-  --env-file "${SCRIPT_DIR}/.env" \
-  up --build -d
+echo "啟動 ${CONTAINER_NAME} ..."
+echo "開啟瀏覽器前往 http://localhost:8002"
 
-echo "=== 服務啟動完成 ==="
-echo "後端 API：http://localhost:${BACKEND_PORT:-8001}"
-echo "API 文件：http://localhost:${BACKEND_PORT:-8001}/docs"
-echo "前端頁面：http://localhost:5173"
-echo ""
-echo "查看日誌：docker compose -f docker/docker-compose.yaml logs -f"
-echo "停止服務：docker compose -f docker/docker-compose.yaml down"
+docker run \
+  --name "${CONTAINER_NAME}" \
+  -p 8002:8000 \
+  -v "${SCRIPT_DIR}/logs:/app/logs" \
+  "${IMAGE_NAME}:${IMAGE_TAG}"
