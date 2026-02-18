@@ -18,7 +18,7 @@ if [[ -f "${SCRIPT_DIR}/.env" ]]; then
   set +a
 fi
 
-# 使用 docker-compose 啟動服務
+# 使用 docker compose 啟動服務
 docker compose -f "${SCRIPT_DIR}/docker/docker-compose.yaml" \
   --env-file "${SCRIPT_DIR}/.env" \
   up --build -d

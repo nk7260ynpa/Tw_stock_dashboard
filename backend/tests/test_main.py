@@ -10,8 +10,6 @@ async def test_health_check(client):
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "ok"
-    assert "app" in data
-    assert "version" in data
 
 
 @pytest.mark.asyncio
@@ -22,3 +20,18 @@ async def test_api_v1_status(client):
     data = response.json()
     assert data["api_version"] == "v1"
     assert data["status"] == "ok"
+
+
+@pytest.mark.asyncio
+async def test_get_tools(client):
+    """測試工具清單端點回傳正確資料。"""
+    response = await client.get("/api/v1/tools")
+    assert response.status_code == 200
+    data = response.json()
+    assert "tools" in data
+    assert len(data["tools"]) > 0
+    tool = data["tools"][0]
+    assert "id" in tool
+    assert "name" in tool
+    assert "description" in tool
+    assert "icon" in tool

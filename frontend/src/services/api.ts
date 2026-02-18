@@ -6,6 +6,13 @@ interface HealthResponse {
   version: string
 }
 
+interface Tool {
+  id: string
+  name: string
+  description: string
+  icon: string
+}
+
 /** 取得後端健康檢查狀態。 */
 export async function fetchHealthStatus(): Promise<HealthResponse> {
   const response = await fetch(`${API_BASE_URL}/../health`)
@@ -15,11 +22,12 @@ export async function fetchHealthStatus(): Promise<HealthResponse> {
   return response.json()
 }
 
-/** 取得 API v1 狀態。 */
-export async function fetchApiV1Status(): Promise<{ api_version: string; status: string }> {
-  const response = await fetch(`${API_BASE_URL}/v1/status`)
+/** 取得工具清單。 */
+export async function fetchTools(): Promise<Tool[]> {
+  const response = await fetch(`${API_BASE_URL}/v1/tools`)
   if (!response.ok) {
     throw new Error(`API 錯誤: ${response.status}`)
   }
-  return response.json()
+  const data = await response.json()
+  return data.tools
 }

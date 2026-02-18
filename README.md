@@ -1,12 +1,11 @@
 # 台股儀表板 (Tw Stock Dashboard)
 
-整合現有台股專案的統一入口儀表板，提供股票資料視覺化介面。
+整合現有台股專案的統一入口儀表板，提供工具卡片式導覽介面。
 
 ## 技術架構
 
 - **後端**：FastAPI (Python 3.12)
 - **前端**：React + TypeScript + Vite
-- **資料庫**：MySQL 8.0
 - **容器化**：Docker + Docker Compose
 
 ## 專案架構
@@ -17,18 +16,15 @@ Tw_stock_dashboard/
 │   ├── app/
 │   │   ├── main.py             # FastAPI 應用程式入口
 │   │   ├── config.py           # 設定檔（環境變數載入）
-│   │   ├── api/v1/             # API v1 路由
-│   │   ├── models/             # SQLAlchemy 資料庫模型
-│   │   ├── schemas/            # Pydantic 資料驗證模型
-│   │   ├── services/           # 業務邏輯層
-│   │   └── db/                 # 資料庫連線管理
+│   │   └── api/v1/router.py    # API v1 路由（工具清單）
 │   ├── requirements.txt
+│   ├── pytest.ini
 │   └── tests/                  # 單元測試
 ├── frontend/                   # React + TypeScript + Vite 前端
 │   ├── src/
-│   │   ├── App.tsx             # 主元件
-│   │   ├── components/         # 共用元件
-│   │   ├── pages/              # 頁面元件
+│   │   ├── App.tsx             # 主元件（工具卡片頁面）
+│   │   ├── App.css             # 頁面樣式
+│   │   ├── index.css           # 全域樣式
 │   │   └── services/api.ts     # API 呼叫層
 │   ├── package.json
 │   └── vite.config.ts
@@ -84,18 +80,13 @@ docker compose -f docker/docker-compose.yaml down
 ### 執行單元測試
 
 ```bash
-# 在後端容器中執行
 docker exec tw-stock-backend pytest tests/ -v
 ```
 
 ### 查看日誌
 
 ```bash
-# 查看所有服務日誌
 docker compose -f docker/docker-compose.yaml logs -f
-
-# 查看特定服務日誌
-docker compose -f docker/docker-compose.yaml logs -f backend
 ```
 
 ## 授權條款

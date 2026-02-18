@@ -1,23 +1,50 @@
 import { useEffect, useState } from 'react'
-import { fetchHealthStatus } from './services/api'
+import './App.css'
+
+interface Tool {
+  id: string
+  name: string
+  description: string
+  icon: string
+}
 
 function App() {
-  const [apiStatus, setApiStatus] = useState<string>('檢查中...')
+  const [tools, setTools] = useState<Tool[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchHealthStatus()
+    fetch('/api/v1/tools')
+      .then((res) => res.json())
       .then((data) => {
-        setApiStatus(`${data.app} v${data.version} - ${data.status}`)
+        setTools(data.tools)
+        setLoading(false)
       })
       .catch(() => {
-        setApiStatus('無法連線至後端 API')
+        setLoading(false)
       })
   }, [])
 
   return (
-    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
-      <h1>台股儀表板</h1>
-      <p>後端 API 狀態：{apiStatus}</p>
+    <div className="app">
+      <header className="app-header">
+        <h1 className="app-title">台股儀表板</h1>
+        <p className="app-subtitle">整合台股工具的統一入口</p>
+      </header>
+      <main className="app-main">
+        {loading ? (
+          <p className="loading">載入中...</p>
+        ) : (
+          <div className="launchpad-grid">
+            {tools.map((tool) => (
+              <div key={tool.id} className="tool-card">
+                <span className="tool-icon">{tool.icon}</span>
+                <h3 className="tool-name">{tool.name}</h3>
+                <p className="tool-description">{tool.description}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </main>
     </div>
   )
 }
