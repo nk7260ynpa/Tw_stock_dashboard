@@ -5,7 +5,7 @@ services:
       dockerfile: docker/Dockerfile.backend
     container_name: tw-stock-backend
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8001}:8000"
     volumes:
       - ../backend:/app
       - ../logs:/app/logs
@@ -40,7 +40,7 @@ services:
     image: mysql:8.0
     container_name: tw-stock-mysql
     ports:
-      - "3306:3306"
+      - "${DB_EXTERNAL_PORT:-3307}:3306"
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-password}
       MYSQL_DATABASE: ${DB_NAME:-tw_stock_dashboard}

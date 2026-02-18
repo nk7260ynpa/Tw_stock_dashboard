@@ -1,12 +1,12 @@
 """pytest 設定與共用 fixtures。"""
 
-import pytest
+import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
 from app.main import app
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     """建立測試用 HTTP 客戶端。
 

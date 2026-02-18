@@ -63,8 +63,8 @@ cp .env.example .env
 
 | 服務 | 網址 |
 |------|------|
-| 後端 API | <http://localhost:8000> |
-| API 文件 (Swagger) | <http://localhost:8000/docs> |
+| 後端 API | <http://localhost:8001> |
+| API 文件 (Swagger) | <http://localhost:8001/docs> |
 | 前端頁面 | <http://localhost:5173> |
 
 ### 停止服務

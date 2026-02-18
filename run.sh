@@ -24,8 +24,8 @@ docker compose -f "${SCRIPT_DIR}/docker/docker-compose.yaml" \
   up --build -d
 
 echo "=== 服務啟動完成 ==="
-echo "後端 API：http://localhost:8000"
-echo "API 文件：http://localhost:8000/docs"
+echo "後端 API：http://localhost:${BACKEND_PORT:-8001}"
+echo "API 文件：http://localhost:${BACKEND_PORT:-8001}/docs"
 echo "前端頁面：http://localhost:5173"
 echo ""
 echo "查看日誌：docker compose -f docker/docker-compose.yaml logs -f"
