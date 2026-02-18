@@ -23,6 +23,7 @@ echo "開啟瀏覽器前往 http://localhost:8002"
 
 docker run \
   --name "${CONTAINER_NAME}" \
+  --network db_network \
   -p 8002:8000 \
   -v "${SCRIPT_DIR}/logs:/app/logs" \
   "${IMAGE_NAME}:${IMAGE_TAG}"

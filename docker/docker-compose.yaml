@@ -11,3 +11,9 @@ services:
       - ../logs:/app/logs
     environment:
       - PYTHONPATH=/app/src
+    networks:
+      - db_network
+
+networks:
+  db_network:
+    external: true
