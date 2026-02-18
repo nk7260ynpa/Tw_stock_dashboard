@@ -4,7 +4,10 @@
   border-radius: 1rem;
   padding: 2rem 1.5rem;
   text-align: center;
-  cursor: default;
+  cursor: pointer;
+  text-decoration: none;
+  display: block;
+  color: inherit;
   transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 

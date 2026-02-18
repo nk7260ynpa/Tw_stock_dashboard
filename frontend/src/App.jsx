@@ -5,6 +5,7 @@ import './App.css'
 function App() {
   const [tools, setTools] = useState([])
   const [loading, setLoading] = useState(true)
+  const [activeTool, setActiveTool] = useState(null)
 
   useEffect(() => {
     fetch('/api/tools')
@@ -18,6 +19,24 @@ function App() {
       })
   }, [])
 
+  if (activeTool) {
+    return (
+      <div className="app-embed">
+        <header className="embed-header">
+          <button className="back-btn" onClick={() => setActiveTool(null)}>
+            ← 返回儀表板
+          </button>
+          <span className="embed-title">{activeTool.icon} {activeTool.name}</span>
+        </header>
+        <iframe
+          className="embed-frame"
+          src={activeTool.url}
+          title={activeTool.name}
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="app">
       <header className="app-header">
@@ -28,7 +47,7 @@ function App() {
         {loading ? (
           <p className="loading">載入中...</p>
         ) : (
-          <LaunchPad tools={tools} />
+          <LaunchPad tools={tools} onSelect={setActiveTool} />
         )}
       </main>
     </div>

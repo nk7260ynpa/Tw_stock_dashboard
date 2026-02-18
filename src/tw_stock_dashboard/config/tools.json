@@ -1,34 +1,26 @@
 [
   {
+    "id": "tw-stock-webpage",
+    "name": "台股網頁",
+    "description": "台股資訊網頁，提供股票資料瀏覽介面",
+    "icon": "🌐",
+    "url": "http://localhost:7938",
+    "enabled": true
+  },
+  {
+    "id": "tw-stock-db-operating",
+    "name": "台股資料庫操作",
+    "description": "台股資料庫管理與資料操作工具",
+    "icon": "🗄️",
+    "url": "http://localhost:8080",
+    "enabled": true
+  },
+  {
     "id": "tw-stock-tools",
     "name": "台股工具集",
     "description": "股票獲利計算機、股利計算機等實用工具",
     "icon": "🔧",
-    "route": "",
-    "enabled": true
-  },
-  {
-    "id": "tw-stock-analysis",
-    "name": "台股分析",
-    "description": "技術分析、基本面分析等股票分析工具",
-    "icon": "📊",
-    "route": "",
-    "enabled": true
-  },
-  {
-    "id": "tw-stock-monitor",
-    "name": "股價監控",
-    "description": "即時股價追蹤與自訂警示通知",
-    "icon": "📈",
-    "route": "",
-    "enabled": true
-  },
-  {
-    "id": "tw-stock-news",
-    "name": "市場資訊",
-    "description": "台股新聞、公告與市場動態彙整",
-    "icon": "📰",
-    "route": "",
+    "url": "http://localhost:8000",
     "enabled": true
   }
 ]

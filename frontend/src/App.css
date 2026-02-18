@@ -30,3 +30,46 @@
   text-align: center;
   color: #64748b;
 }
+
+/* 嵌入模式 */
+.app-embed {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.embed-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 1rem;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.back-btn {
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.875rem;
+  color: #3b82f6;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.back-btn:hover {
+  background: #f1f5f9;
+}
+
+.embed-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.embed-frame {
+  flex: 1;
+  border: none;
+  width: 100%;
+}
