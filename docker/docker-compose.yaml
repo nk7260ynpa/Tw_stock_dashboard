@@ -1,0 +1,62 @@
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+    container_name: tw-stock-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../backend:/app
+      - ../logs:/app/logs
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-password}
+      - DB_NAME=${DB_NAME:-tw_stock_dashboard}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - tw-stock-net
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
+    container_name: tw-stock-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - tw-stock-net
+
+  mysql:
+    image: mysql:8.0
+    container_name: tw-stock-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-password}
+      MYSQL_DATABASE: ${DB_NAME:-tw_stock_dashboard}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tw-stock-net
+
+volumes:
+  mysql_data:
+
+networks:
+  tw-stock-net:
+    driver: bridge
