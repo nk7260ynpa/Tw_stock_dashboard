@@ -22,5 +22,13 @@
     "icon": "🔧",
     "url": "http://localhost:8000",
     "enabled": true
+  },
+  {
+    "id": "tw-stock-server-monitor",
+    "name": "主機資源監控",
+    "description": "Grafana 儀表板，監控主機 CPU、記憶體、磁碟等資源使用狀況",
+    "icon": "📡",
+    "url": "http://localhost:3000",
+    "enabled": true
   }
 ]
