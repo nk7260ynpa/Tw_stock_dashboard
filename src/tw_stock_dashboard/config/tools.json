@@ -30,5 +30,13 @@
     "icon": "📡",
     "url": "http://localhost:3000",
     "enabled": true
+  },
+  {
+    "id": "tw-stock-indicator",
+    "name": "台股指標分析",
+    "description": "技術指標分析工具，提供進出場盈利指標與規則設計器",
+    "icon": "📉",
+    "url": "http://localhost:5001",
+    "enabled": true
   }
 ]
