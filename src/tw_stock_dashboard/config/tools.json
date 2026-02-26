@@ -28,7 +28,7 @@
     "name": "主機資源監控",
     "description": "Grafana 儀表板，監控主機 CPU、記憶體、磁碟等資源使用狀況",
     "icon": "📡",
-    "url": "http://localhost:3000",
+    "url": "http://localhost:3000/d/node-exporter-overview/",
     "enabled": true
   },
   {
