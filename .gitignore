@@ -220,3 +220,4 @@ dist/
 # Frontend build
 frontend/dist/
 frontend/node_modules/
+.DS_Store
