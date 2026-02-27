@@ -38,5 +38,13 @@
     "icon": "📉",
     "url": "http://localhost:5001",
     "enabled": true
+  },
+  {
+    "id": "tw-stock-news",
+    "name": "台股新聞",
+    "description": "CTEE 工商時報台股新聞 Dashboard",
+    "icon": "📰",
+    "url": "http://localhost:8003",
+    "enabled": true
   }
 ]
