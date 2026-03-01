@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=75.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tw_stock_dashboard"
+version = "1.0.0"
+description = "台股儀表板 - 整合現有台股專案的統一入口 LaunchPad"
+requires-python = ">=3.12"
+license = "MIT"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "httpx",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+tw_stock_dashboard = ["config/*.json"]

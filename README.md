@@ -52,7 +52,8 @@ Tw_stock_dashboard/
 │   ├── Dockerfile                      # Multi-stage Dockerfile
 │   └── docker-compose.yaml
 ├── logs/                               # 日誌資料夾
-├── requirements.txt                    # Python 依賴
+├── pyproject.toml                      # Python 套件定義 (PEP 621)
+├── requirements.txt                    # Python 釘版依賴（Docker 環境）
 ├── run.sh                              # 啟動腳本
 └── README.md
 ```
@@ -98,7 +99,6 @@ docker rm -f tw_stock_dashboard
 docker run --rm \
   -v "$(pwd)/src:/app/src" \
   -v "$(pwd)/tests:/app/tests" \
-  -e PYTHONPATH=/app/src \
   nk7260ynpa/tw_stock_dashboard:latest \
   pytest tests/ -v
 ```
