@@ -1,0 +1,243 @@
+.hot-topics {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.hot-header {
+  margin-bottom: 1.5rem;
+}
+
+.hot-header-top {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.hot-back-btn {
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.875rem;
+  color: #3b82f6;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.hot-back-btn:hover {
+  background: #f1f5f9;
+}
+
+.hot-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.hot-subtitle {
+  font-size: 1.05rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* 控制列 */
+.hot-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.hot-date-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #475569;
+}
+
+.hot-date-select {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  color: #1e293b;
+  background: #ffffff;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.hot-date-select:focus {
+  border-color: #3b82f6;
+}
+
+.hot-current-date {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-left: auto;
+}
+
+/* 區段 */
+.hot-section {
+  margin-bottom: 2.5rem;
+}
+
+.hot-section-title {
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.hot-section-up {
+  color: #dc2626;
+  border-bottom-color: #fecaca;
+}
+
+.hot-section-down {
+  color: #16a34a;
+  border-bottom-color: #bbf7d0;
+}
+
+.hot-count {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: #64748b;
+}
+
+/* 表格 */
+.hot-table-wrapper {
+  overflow-x: auto;
+}
+
+.hot-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.hot-table thead {
+  background: #f8fafc;
+}
+
+.hot-table th {
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  color: #475569;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.hot-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1e293b;
+}
+
+.hot-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.hot-code {
+  font-weight: 600;
+  color: #1e40af;
+}
+
+.hot-number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.hot-up {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.hot-down {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+/* 市場標籤 */
+.hot-market-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge-twse {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-tpex {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* 狀態 */
+.hot-loading {
+  text-align: center;
+  color: #64748b;
+  padding: 3rem 0;
+}
+
+.hot-error {
+  text-align: center;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.75rem;
+  padding: 2rem;
+  margin: 2rem 0;
+}
+
+.hot-error p {
+  color: #dc2626;
+  margin: 0 0 0.5rem 0;
+  font-weight: 500;
+}
+
+.hot-error-hint {
+  color: #64748b !important;
+  font-weight: 400 !important;
+  font-size: 0.85rem;
+}
+
+.hot-empty {
+  text-align: center;
+  color: #94a3b8;
+  padding: 2rem 0;
+  font-size: 1rem;
+}
+
+/* 響應式 */
+@media (max-width: 640px) {
+  .hot-topics {
+    padding: 1rem;
+  }
+
+  .hot-title {
+    font-size: 1.5rem;
+  }
+
+  .hot-table {
+    font-size: 0.8rem;
+  }
+
+  .hot-table th,
+  .hot-table td {
+    padding: 0.4rem 0.5rem;
+  }
+}

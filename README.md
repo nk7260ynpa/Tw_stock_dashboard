@@ -2,21 +2,24 @@
 
 整合現有台股專案的統一入口儀表板，提供工具卡片式導覽介面。
 點擊卡片可在頁面內以 iframe 嵌入各服務，無需開新分頁。
+另外提供「熱門話題」頁面，顯示今日漲停板與跌停板股票。
 
 ## 整合服務
 
 | 卡片 | 專案 | Port |
 |------|------|------|
-| 🌐 台股網頁 | Tw_stock_webpage | 7938 |
-| 🗄️ 台股資料庫操作 | Tw_stock_db_operating | 8080 |
-| 🔧 台股工具集 | Tw_stock_tools | 8000 |
-| 📡 主機資源監控 | Tw_stock_server_monitor (Grafana) | 3000 |
-| 📉 台股指標分析 | Tw_stock_indicator | 5001 |
+| 台股網頁 | Tw_stock_webpage | 7938 |
+| 台股資料庫操作 | Tw_stock_db_operating | 8080 |
+| 台股工具集 | Tw_stock_tools | 8000 |
+| 主機資源監控 | Tw_stock_server_monitor (Grafana) | 3000 |
+| 台股指標分析 | Tw_stock_indicator | 5001 |
+| 台股新聞 | Tw_stock_news | 8003 |
 
 ## 技術架構
 
 - **後端**：FastAPI (Python 3.12)，提供 API + 靜態檔案服務
-- **前端**：React + Vite，build 後由 FastAPI 提供靜態檔案
+- **前端**：React + Vite + React Router，build 後由 FastAPI 提供靜態檔案
+- **資料庫**：MySQL（TWSE、TPEX 資料庫的 DailyPrice 和 StockName 表）
 - **容器化**：Docker 單一容器（multi-stage build）
 - **網路**：加入 `db_network` 外部網路
 
@@ -33,20 +36,27 @@ Tw_stock_dashboard/
 │       └── web/
 │           ├── app.py                  # FastAPI 應用程式
 │           └── routers/
-│               └── tools.py            # 工具 API 路由
+│               ├── tools.py            # 工具 API 路由
+│               └── hot_topics.py       # 熱門話題 API 路由（漲跌停）
 ├── frontend/                           # React 前端
 │   ├── src/
-│   │   ├── App.jsx                     # 主元件（含 iframe 嵌入）
+│   │   ├── App.jsx                     # 主元件（路由 + iframe 嵌入）
 │   │   ├── App.css
 │   │   ├── index.css
+│   │   ├── main.jsx                    # React 進入點
 │   │   └── components/
 │   │       ├── LaunchPad.jsx           # 工具網格容器
 │   │       ├── LaunchPad.css
 │   │       ├── ToolCard.jsx            # 工具卡片元件
-│   │       └── ToolCard.css
+│   │       ├── ToolCard.css
+│   │       ├── HotTopics.jsx           # 熱門話題頁面（漲跌停板）
+│   │       └── HotTopics.css
 │   ├── package.json
 │   └── vite.config.js
 ├── tests/                              # 單元測試
+│   ├── test_api.py                     # 工具 API 測試
+│   ├── test_hot_topics.py              # 熱門話題 API 測試
+│   └── test_main.py                    # 主程式測試
 ├── docker/
 │   ├── build.sh                        # 建立 Docker image
 │   ├── Dockerfile                      # Multi-stage Dockerfile
@@ -58,12 +68,30 @@ Tw_stock_dashboard/
 └── README.md
 ```
 
+## 頁面與 API
+
+### 前端頁面
+
+| 路徑 | 功能 |
+|------|------|
+| `/` | LaunchPad 工具卡片首頁 |
+| `/hot-topics` | 熱門話題 — 漲停板與跌停板 |
+
+### API 端點
+
+| Endpoint | 方法 | 功能 |
+|----------|------|------|
+| `/api/tools` | GET | 取得已啟用的工具清單 |
+| `/api/hot-topics` | GET | 取得漲停/跌停股票（`?date=YYYY-MM-DD`） |
+| `/api/hot-topics/dates` | GET | 列出最近有交易的日期（`?limit=30`） |
+
 ## 快速開始
 
 ### 前置需求
 
 - [Docker](https://docs.docker.com/get-docker/)
 - `db_network` Docker 網路已建立
+- MySQL 資料庫服務運行中（漲跌停功能需要 TWSE、TPEX 資料庫）
 
 ### 建立與啟動
 
@@ -80,6 +108,7 @@ Tw_stock_dashboard/
 | 服務 | 網址 |
 |------|------|
 | 台股儀表板 | <http://localhost:8002> |
+| 熱門話題 | <http://localhost:8002/hot-topics> |
 
 ### 停止服務
 
