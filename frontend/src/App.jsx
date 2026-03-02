@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react'
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
 import LaunchPad from './components/LaunchPad'
-import HotTopics from './components/HotTopics'
 import './App.css'
 
-function HomePage() {
+function App() {
   const [tools, setTools] = useState([])
   const [loading, setLoading] = useState(true)
   const [activeTool, setActiveTool] = useState(null)
@@ -45,11 +43,6 @@ function HomePage() {
         <h1 className="app-title">台股儀表板</h1>
         <p className="app-subtitle">整合台股工具的統一入口</p>
       </header>
-      <nav className="app-nav">
-        <Link to="/hot-topics" className="nav-link nav-link-hot">
-          熱門話題 - 漲跌停
-        </Link>
-      </nav>
       <main className="app-main">
         {loading ? (
           <p className="loading">載入中...</p>
@@ -58,17 +51,6 @@ function HomePage() {
         )}
       </main>
     </div>
-  )
-}
-
-function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/hot-topics" element={<HotTopics />} />
-      </Routes>
-    </BrowserRouter>
   )
 }
 

@@ -11,8 +11,6 @@ license = "MIT"
 dependencies = [
     "fastapi",
     "uvicorn",
-    "sqlalchemy",
-    "pymysql",
 ]
 
 [project.optional-dependencies]

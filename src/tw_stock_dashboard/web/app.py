@@ -11,7 +11,6 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from tw_stock_dashboard.web.routers.hot_topics import router as hot_topics_router
 from tw_stock_dashboard.web.routers.tools import router as tools_router
 
 logger = logging.getLogger(__name__)
@@ -20,7 +19,6 @@ app = FastAPI(title="台股儀表板", version="0.1.0")
 
 # 註冊 API 路由
 app.include_router(tools_router)
-app.include_router(hot_topics_router)
 
 # 前端靜態檔案（React 建置產出）
 # 因套件安裝後 __file__ 指向 site-packages，無法用相對路徑定位
