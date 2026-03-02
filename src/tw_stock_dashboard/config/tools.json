@@ -50,7 +50,7 @@
   {
     "id": "tw-stock-hot",
     "name": "熱門話題",
-    "description": "漲跌停排行、產業熱度分析",
+    "description": "台股熱度平台 — 漲跌停排行 / 交易量排行 / 交易額排行 / 產業漲幅",
     "icon": "🔥",
     "url": "http://localhost:5050",
     "enabled": true
