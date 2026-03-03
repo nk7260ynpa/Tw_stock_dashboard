@@ -138,6 +138,42 @@ docker run --rm \
 cat logs/tw_stock_dashboard.log
 ```
 
+## CI/CD
+
+本專案使用 GitHub Actions 自動建置並推送 Docker image 至 DockerHub。
+
+### 觸發條件
+
+推送符合 `v*.*.*` 格式的 tag 時自動觸發，例如：
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+### 自動化流程
+
+1. Checkout 原始碼
+2. 從 tag 擷取版本號
+3. 登入 DockerHub（使用 repository secrets）
+4. 建置 Docker image（multi-stage build）
+5. 推送版本號 tag 與 `latest` tag 至 DockerHub
+
+### 必要 Secrets
+
+在 GitHub repository 的 Settings > Secrets and variables > Actions 中設定：
+
+| Secret | 說明 |
+|--------|------|
+| `DOCKER_USERNAME` | DockerHub 帳號 |
+| `DOCKER_PASSWORD` | DockerHub 密碼或 Access Token |
+
+### 版本紀錄
+
+| 版本 | 說明 |
+|------|------|
+| v1.0.0 | 初始版本 — LaunchPad 工具卡片、熱門話題頁面 |
+
 ## 授權條款
 
 本專案採用 MIT 授權條款，詳見 [LICENSE](LICENSE) 檔案。
