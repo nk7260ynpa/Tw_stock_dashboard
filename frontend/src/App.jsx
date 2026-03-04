@@ -30,7 +30,7 @@ function App() {
         </header>
         <iframe
           className="embed-frame"
-          src={activeTool.url}
+          src={`${activeTool.url}${activeTool.url.includes('?') ? '&' : '?'}t=${Date.now()}`}
           title={activeTool.name}
         />
       </div>
