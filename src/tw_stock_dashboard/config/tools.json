@@ -1,5 +1,13 @@
 [
   {
+    "id": "tw-stock-hot",
+    "name": "熱門話題",
+    "description": "台股熱度平台 — 漲跌停排行 / 交易量排行 / 交易額排行 / 產業漲幅",
+    "icon": "🔥",
+    "url": "http://localhost:5050",
+    "enabled": true
+  },
+  {
     "id": "tw-stock-webpage",
     "name": "台股網頁",
     "description": "台股資訊網頁，提供股票資料瀏覽介面",
@@ -45,14 +53,6 @@
     "description": "CTEE 工商時報台股新聞 Dashboard",
     "icon": "📰",
     "url": "http://localhost:8003",
-    "enabled": true
-  },
-  {
-    "id": "tw-stock-hot",
-    "name": "熱門話題",
-    "description": "台股熱度平台 — 漲跌停排行 / 交易量排行 / 交易額排行 / 產業漲幅",
-    "icon": "🔥",
-    "url": "http://localhost:5050",
     "enabled": true
   }
 ]
