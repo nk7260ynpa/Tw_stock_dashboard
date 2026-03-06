@@ -48,6 +48,14 @@
     "enabled": true
   },
   {
+    "id": "tw-stock-ml",
+    "name": "台股 ML 預測分析",
+    "description": "機器學習股價預測與技術指標分析",
+    "icon": "🤖",
+    "url": "http://localhost:5002",
+    "enabled": true
+  },
+  {
     "id": "tw-stock-news",
     "name": "台股新聞",
     "description": "CTEE 工商時報台股新聞 Dashboard",
