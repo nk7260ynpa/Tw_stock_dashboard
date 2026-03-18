@@ -8,12 +8,15 @@
 
 | 卡片 | 專案 | Port |
 |------|------|------|
+| 熱門話題 | Tw_stock_hot | 5050 |
 | 台股網頁 | Tw_stock_webpage | 7938 |
 | 台股資料庫操作 | Tw_stock_db_operating | 8080 |
 | 台股工具集 | Tw_stock_tools | 8000 |
 | 主機資源監控 | Tw_stock_server_monitor (Grafana) | 3000 |
 | 台股指標分析 | Tw_stock_indicator | 5001 |
+| 台股 ML 預測分析 | Tw_stock_ML | 5002 |
 | 台股新聞 | Tw_stock_news | 8003 |
+| 特殊資訊 Dashboard | SpecialInfo | 5055 |
 
 ## 技術架構
 

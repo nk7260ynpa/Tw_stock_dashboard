@@ -62,5 +62,13 @@
     "icon": "📰",
     "url": "http://localhost:8003",
     "enabled": true
+  },
+  {
+    "id": "tw-stock-special-info",
+    "name": "特殊資訊 Dashboard",
+    "description": "國際金融商品走勢（貨幣、石油、黃金、虛擬貨幣）",
+    "icon": "🌍",
+    "url": "http://localhost:5055",
+    "enabled": true
   }
 ]
