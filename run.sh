@@ -21,8 +21,9 @@ fi
 echo "啟動 ${CONTAINER_NAME} ..."
 echo "開啟瀏覽器前往 http://localhost:8002"
 
-docker run \
+docker run -d \
   --name "${CONTAINER_NAME}" \
+  --restart=always \
   --network db_network \
   -p 8002:8000 \
   -v "${SCRIPT_DIR}/logs:/app/logs" \
