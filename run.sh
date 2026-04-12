@@ -25,6 +25,6 @@ docker run -d \
   --name "${CONTAINER_NAME}" \
   --restart=always \
   --network db_network \
-  -p 8002:8000 \
+  -p 127.0.0.1:8002:8000 \
   -v "${SCRIPT_DIR}/logs:/app/logs" \
   "${IMAGE_NAME}:${IMAGE_TAG}"

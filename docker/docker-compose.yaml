@@ -6,7 +6,7 @@ services:
     image: nk7260ynpa/tw_stock_dashboard:latest
     container_name: tw_stock_dashboard
     ports:
-      - "8002:8000"
+      - "127.0.0.1:8002:8000"
     volumes:
       - ../logs:/app/logs
     networks:
