@@ -4,7 +4,7 @@
     "name": "熱門話題",
     "description": "台股熱度平台 — 漲跌停排行 / 交易量排行 / 交易額排行 / 產業漲幅",
     "icon": "🔥",
-    "url": "http://localhost:5050",
+    "url": "/app/hot/",
     "enabled": true
   },
   {
@@ -12,7 +12,7 @@
     "name": "台股網頁",
     "description": "台股資訊網頁，提供股票資料瀏覽介面",
     "icon": "🌐",
-    "url": "http://localhost:7938",
+    "url": "/app/webpage/",
     "enabled": true
   },
   {
@@ -20,7 +20,7 @@
     "name": "台股資料庫操作",
     "description": "台股資料庫管理與資料操作工具",
     "icon": "🗄️",
-    "url": "http://localhost:8080",
+    "url": "/app/db-operating/",
     "enabled": true
   },
   {
@@ -28,7 +28,7 @@
     "name": "台股工具集",
     "description": "股票獲利計算機、股利計算機等實用工具",
     "icon": "🔧",
-    "url": "http://localhost:8000",
+    "url": "/app/tools/",
     "enabled": true
   },
   {
@@ -44,7 +44,7 @@
     "name": "台股指標分析",
     "description": "技術指標分析工具，提供進出場盈利指標與規則設計器",
     "icon": "📉",
-    "url": "http://localhost:5001",
+    "url": "/app/indicator/",
     "enabled": true
   },
   {
@@ -52,7 +52,7 @@
     "name": "台股 ML 預測分析",
     "description": "機器學習股價預測與技術指標分析",
     "icon": "🤖",
-    "url": "http://localhost:5002",
+    "url": "/app/ml/",
     "enabled": true
   },
   {
@@ -60,7 +60,7 @@
     "name": "台股新聞",
     "description": "CTEE 工商時報台股新聞 Dashboard",
     "icon": "📰",
-    "url": "http://localhost:8003",
+    "url": "/app/news/",
     "enabled": true
   },
   {
@@ -68,7 +68,7 @@
     "name": "特殊資訊 Dashboard",
     "description": "國際金融商品走勢（貨幣、石油、黃金、虛擬貨幣）",
     "icon": "🌍",
-    "url": "http://localhost:5055",
+    "url": "/app/specialinfo/",
     "enabled": true
   }
 ]

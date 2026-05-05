@@ -11,6 +11,8 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
+from tw_stock_dashboard.web.routers.proxy import close_client as _close_proxy_client
+from tw_stock_dashboard.web.routers.proxy import router as proxy_router
 from tw_stock_dashboard.web.routers.tools import router as tools_router
 
 logger = logging.getLogger(__name__)
@@ -19,6 +21,15 @@ app = FastAPI(title="台股儀表板", version="0.1.0")
 
 # 註冊 API 路由
 app.include_router(tools_router)
+# 註冊反向代理路由（必須在 SPA catch-all 之前，避免被 serve_spa 吞掉）
+app.include_router(proxy_router)
+
+
+@app.on_event("shutdown")
+async def _shutdown_proxy_client() -> None:
+    """關閉代理共享 httpx client。"""
+    await _close_proxy_client()
+
 
 # 前端靜態檔案（React 建置產出）
 # 因套件安裝後 __file__ 指向 site-packages，無法用相對路徑定位
