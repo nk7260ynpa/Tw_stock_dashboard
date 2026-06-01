@@ -1,8 +1,13 @@
-# GitLab CI/CD：建置並推送 Docker image 到 Harbor
+# GitLab CI/CD：GitLab Flow 建置 / 升版 / 部署管線
 # 對照來源：.github/workflows/docker-publish.yml
 #
-# 觸發條件：推送符合 v*.*.* 格式的 tag（例如 v1.2.0），與 GitHub Action 相同。
-# 行為：用 docker/Dockerfile 建置 image，推送 <版本號> 與 latest 兩個標籤到 Harbor。
+# ── 流程總覽（GitLab Flow）─────────────────────────────────────────
+#   1. 於 main 推送符合 v*.*.* 的 tag → build：
+#      用 docker/Dockerfile 建置 image，推送 <版本號> 與 latest 兩個標籤到 Harbor。
+#   2. 將 main 合併進 production 分支 → promote：
+#      將 Harbor 上的 latest 重新打上 production 標籤並推回 Harbor。
+#   3. 同一次 production 分支管線 → deploy：
+#      拉取 production 標籤的 image，重啟 tw_stock_dashboard 容器完成部署。
 #
 # ── 認證來源 ───────────────────────────────────────────────────────
 # 下列變數由 GitLab Runner 注入（設定於 runner 的 config.toml [[runners]].environment，
@@ -18,11 +23,14 @@
 
 stages:
   - build
+  - promote
+  - deploy
 
 variables:
   HARBOR_PROJECT: "twstock"            # Harbor 專案名稱（對應 project id 2）
   IMAGE_NAME: "tw_stock_dashboard"     # image 名稱
 
+# ── 1. build：tag 觸發，建置並推送 <版本號> 與 latest ──────────────
 build-and-push:
   stage: build
   image: docker:27
@@ -42,3 +50,45 @@ build-and-push:
         .
     - docker push "$HARBOR_REGISTRY/$HARBOR_PROJECT/$IMAGE_NAME:$VERSION"
     - docker push "$HARBOR_REGISTRY/$HARBOR_PROJECT/$IMAGE_NAME:latest"
+
+# ── 2. promote：production 分支觸發，將 latest 升版為 production ─────
+promote-production:
+  stage: promote
+  image: docker:27
+  rules:
+    # 僅在 production 分支推送時執行
+    - if: '$CI_COMMIT_BRANCH == "production"'
+  before_script:
+    - echo "$HARBOR_PASSWORD" | docker login "$HARBOR_REGISTRY" -u "$HARBOR_USERNAME" --password-stdin
+  script:
+    - export LATEST_IMAGE="$HARBOR_REGISTRY/$HARBOR_PROJECT/$IMAGE_NAME:latest"
+    - export PROD_IMAGE="$HARBOR_REGISTRY/$HARBOR_PROJECT/$IMAGE_NAME:production"
+    # 取最新的 latest，重新打上 production 標籤後推回 Harbor
+    - docker pull "$LATEST_IMAGE"
+    - docker tag "$LATEST_IMAGE" "$PROD_IMAGE"
+    - docker push "$PROD_IMAGE"
+
+# ── 3. deploy：production 分支觸發，拉取 production image 重啟容器 ───
+deploy-production:
+  stage: deploy
+  image: docker:27
+  rules:
+    # 僅在 production 分支推送時執行（接續 promote 之後）
+    - if: '$CI_COMMIT_BRANCH == "production"'
+  before_script:
+    - echo "$HARBOR_PASSWORD" | docker login "$HARBOR_REGISTRY" -u "$HARBOR_USERNAME" --password-stdin
+  script:
+    - export PROD_IMAGE="$HARBOR_REGISTRY/$HARBOR_PROJECT/$IMAGE_NAME:production"
+    # 拉取剛升版的 production image
+    - docker pull "$PROD_IMAGE"
+    # 移除舊容器（若存在）後以 production image 重新啟動
+    - docker rm -f tw_stock_dashboard || true
+    # 註：runner 為 socket 綁定，CI 工作目錄非主機路徑，故 logs 改用具名 volume
+    #     （tw_stock_dashboard_logs）持久化，避免 bind mount 主機路徑不一致。
+    - docker run -d
+        --name tw_stock_dashboard
+        --restart=always
+        --network db_network
+        --publish 127.0.0.1:8002:8000
+        --volume tw_stock_dashboard_logs:/app/logs
+        "$PROD_IMAGE"
