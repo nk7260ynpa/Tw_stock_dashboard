@@ -171,6 +171,28 @@ git push origin v1.0.0
 | `DOCKER_USERNAME` | DockerHub 帳號 |
 | `DOCKER_PASSWORD` | DockerHub 密碼或 Access Token |
 
+### GitLab Flow（Harbor 自架）
+
+除 GitHub Actions 外，本專案另以 `.gitlab-ci.yml` 在自架 GitLab 上實作 GitLab Flow，
+將建置、升版、部署串成完整流程，最終把 image 推送至 Harbor 並自動部署。
+
+| 階段 | 觸發條件 | 行為 |
+|------|----------|------|
+| `build` | 於 `main` 推送 `v*.*.*` tag | 建置 image，推送 `<版本號>` 與 `latest` 至 Harbor |
+| `promote` | 推送 `production` 分支 | 將 Harbor 的 `latest` 重新打上 `production` 標籤推回 |
+| `deploy` | 推送 `production` 分支 | 拉取 `production` image，重啟 `tw_stock_dashboard` 容器 |
+
+典型流程：在 `main` 開發並打版本 tag（產生 `latest`）→ 將 `main` 合併進 `production`
+分支 → `promote` 升版、`deploy` 自動部署上線。
+
+必要的 Runner 環境變數（由 GitLab Runner 注入，未進版控）：
+
+| 變數 | 說明 |
+|------|------|
+| `HARBOR_USERNAME` | Harbor 帳號 |
+| `HARBOR_PASSWORD` | Harbor 密碼 |
+| `HARBOR_REGISTRY` | Harbor registry 位址（例：`127.0.0.1:8081`） |
+
 ### 版本紀錄
 
 | 版本 | 說明 |
