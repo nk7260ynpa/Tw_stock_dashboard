@@ -1,118 +1,79 @@
-# GitLab CI/CD：GitLab Flow 建置 / 升版 / 部署管線
-# 對照來源：.github/workflows/docker-publish.yml
-#
-# ── 流程總覽（GitLab Flow）─────────────────────────────────────────
-#   1. 於 main 推送符合 v*.*.* 的 tag → build：
-#      用 docker/Dockerfile 建置 image，推送 <版本號> 與 latest 兩個標籤到 Harbor。
-#   2. 將 main 合併進 production 分支 → promote：
-#      將 Harbor 上的 latest 重新打上 production 標籤並推回 Harbor。
-#   3. 同一次 production 分支管線 → deploy：
-#      拉取 production 標籤的 image，重啟 tw_stock_dashboard 容器完成部署。
-#
-# ── 認證來源 ───────────────────────────────────────────────────────
-# 下列變數由 GitLab Runner 注入（設定於 runner 的 config.toml [[runners]].environment，
-# 其值來源為 gitlab-runner/.env，未進版控）：
-#   HARBOR_USERNAME  Harbor 帳號
-#   HARBOR_PASSWORD  Harbor 密碼
-#   HARBOR_REGISTRY  Harbor registry 位址（127.0.0.1:8081）
-#
-# ── Runner 形態 ────────────────────────────────────────────────────
-# 本 runner 為 docker executor 並掛載 /var/run/docker.sock（socket 綁定），docker 指令
-# 直接在「主機 daemon」上執行，因此無需 docker:dind / privileged。push 目標
-# 127.0.0.1:8081 即主機上的 Harbor；127.0.0.1 屬 Docker 預設 insecure registry，免額外設定。
-
-stages:
-  - build
-  - promote
-  - deploy
-  - mirror
-
-variables:
-  HARBOR_PROJECT: "twstock"            # Harbor 專案名稱（對應 project id 2）
-  IMAGE_NAME: "tw_stock_dashboard"     # image 名稱
-
-# ── 1. build：tag 觸發，建置並推送 <版本號> 與 latest ──────────────
-build-and-push:
-  stage: build
-  image: docker:27
-  rules:
-    # 僅在符合 v*.*.* 的 tag 上執行（等同 GitHub Action 的 tags: 'v*.*.*'）
-    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
-  before_script:
-    # 由 tag 取出版本號，去掉開頭的 v（v1.2.0 → 1.2.0）
-    - export VERSION="${CI_COMMIT_TAG#v}"
-    # 登入 Harbor（密碼以 stdin 傳入，避免出現在行程清單）
-    - echo "$HARBOR_PASSWORD" | docker login "$HARBOR_REGISTRY" -u "$HARBOR_USERNAME" --password-stdin
-  script:
-    - docker build
-        --file docker/Dockerfile
-        --tag "$HARBOR_REGISTRY/$HARBOR_PROJECT/$IMAGE_NAME:$VERSION"
-        --tag "$HARBOR_REGISTRY/$HARBOR_PROJECT/$IMAGE_NAME:latest"
-        .
-    - docker push "$HARBOR_REGISTRY/$HARBOR_PROJECT/$IMAGE_NAME:$VERSION"
-    - docker push "$HARBOR_REGISTRY/$HARBOR_PROJECT/$IMAGE_NAME:latest"
-
-# ── 2. promote：production 分支觸發，將 latest 升版為 production ─────
-promote-production:
-  stage: promote
-  image: docker:27
-  rules:
-    # 僅在 production 分支推送時執行
-    - if: '$CI_COMMIT_BRANCH == "production"'
-  before_script:
-    - echo "$HARBOR_PASSWORD" | docker login "$HARBOR_REGISTRY" -u "$HARBOR_USERNAME" --password-stdin
-  script:
-    - export LATEST_IMAGE="$HARBOR_REGISTRY/$HARBOR_PROJECT/$IMAGE_NAME:latest"
-    - export PROD_IMAGE="$HARBOR_REGISTRY/$HARBOR_PROJECT/$IMAGE_NAME:production"
-    # 取最新的 latest，重新打上 production 標籤後推回 Harbor
-    - docker pull "$LATEST_IMAGE"
-    - docker tag "$LATEST_IMAGE" "$PROD_IMAGE"
-    - docker push "$PROD_IMAGE"
-
-# ── 3. deploy：production 分支觸發，拉取 production image 重啟容器 ───
-deploy-production:
-  stage: deploy
-  image: docker:27
-  rules:
-    # 僅在 production 分支推送時執行（接續 promote 之後）
-    - if: '$CI_COMMIT_BRANCH == "production"'
-  before_script:
-    - echo "$HARBOR_PASSWORD" | docker login "$HARBOR_REGISTRY" -u "$HARBOR_USERNAME" --password-stdin
-  script:
-    - export PROD_IMAGE="$HARBOR_REGISTRY/$HARBOR_PROJECT/$IMAGE_NAME:production"
-    # 拉取剛升版的 production image
-    - docker pull "$PROD_IMAGE"
-    # 移除舊容器（若存在）後以 production image 重新啟動
-    - docker rm -f tw_stock_dashboard || true
-    # 註：runner 為 socket 綁定，CI 工作目錄非主機路徑，故 logs 改用具名 volume
-    #     （tw_stock_dashboard_logs）持久化，避免 bind mount 主機路徑不一致。
-    - docker run -d
-        --name tw_stock_dashboard
-        --restart=always
-        --network db_network
-        --publish 127.0.0.1:8002:8000
-        --volume tw_stock_dashboard_logs:/app/logs
-        "$PROD_IMAGE"
-
-# ── 4. mirror：在 main 打上 vX.Y.Z 版本 tag 時，把儲存庫鏡像推送到 GitHub ──
+# GitLab CI/CD：在 main 打上 vX.Y.Z 版本 tag 時，
+#   (1) deploy ：於 GitLab Runner 的 host daemon 本地 build 映像並重啟容器（自動重新部署）。
+#   (2) mirror ：把儲存庫鏡像推送到 GitHub（合併進 main 當下不鏡像）。
+# 兩個 job 各自 needs: []，互不相依、並行執行。
 #
 # ── 流程 ───────────────────────────────────────────────────────────
-#   feature 分支 → 開 Merge Request → 合併進 main（此時「不」鏡像）
-#   → 在 main 打上 vX.Y.Z 版本 tag → 本 job 於該 tag 觸發
-#   → 將 main 與該 tag 一併推送（鏡像）到 GitHub。
-#   （同一個 vX.Y.Z tag 也會觸發 build-and-push 推送 Harbor，兩者並行不衝突。）
+#   feature 分支 → 開 Merge Request → 合併進 main（此時不觸發任何 job）
+#   → 在 main 打上 vX.Y.Z 版本 tag → 本管線於該 tag 觸發
+#   → deploy（重新部署本機容器）與 mirror（推送到 GitHub）並行執行。
 #
-# ── 認證來源 ───────────────────────────────────────────────────────
+# ── Runner 前提（deploy 用） ────────────────────────────────────────
+#   GitLab Runner 為 docker executor 並掛載 /var/run/docker.sock（socket 綁定），
+#   故 deploy job 內的 docker 指令直接作用在 host daemon——build 出來的映像、
+#   run 起來的容器都落在主機，與手動執行 docker/build.sh + run.sh 等價。
+#
+# ── 認證來源（mirror 用） ──────────────────────────────────────────
 #   GITHUB_SSH_KEY  由 GitLab Runner 注入（config.toml 的 environment 或掛載）。
-#                   其值可為 SSH 私鑰的「檔案路徑」或「私鑰內容」，本 job 兩者皆支援。
-#                   此為帳號層級通用金鑰，對所有 nk7260ynpa/* GitHub repo 皆有寫入權限，
-#                   不需另設 deploy key。
+#                   其值可為 SSH 私鑰的「檔案路徑」或「私鑰內容」，本管線兩者皆支援。
+#                   對應公鑰需加到 GitHub repo → Settings → Deploy keys，並勾選
+#                   Allow write access。
 #
 # ── 注意 ───────────────────────────────────────────────────────────
 #   GIT_DEPTH: 0 取得完整歷史，避免 shallow clone 導致 GitHub 推送被拒。
+
+stages:
+  - deploy
+  - mirror
+
+workflow:
+  rules:
+    # 僅在推送 vX.Y.Z 版本 tag 時建立管線（合併進 main 不觸發）
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
+
+# ── deploy：在 host daemon 本地 build 並重啟容器 ────────────────────
+deploy:
+  stage: deploy
+  image: docker:27
+  needs: []                       # 與 mirror 互不相依、並行執行
+  resource_group: deploy          # 同 repo 不並發部署（序列化保護）
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
+  variables:
+    IMAGE: "nk7260ynpa/tw_stock_dashboard"
+    CONTAINER: "tw_stock_dashboard"
+    LOGS_VOLUME: "tw_stock_dashboard_logs"
+    LOGS_PATH: "/app/logs"
+  before_script:
+    # CI_COMMIT_TAG 形如 vX.Y.Z，去掉前綴 v 作為映像版本標籤
+    - export VERSION="${CI_COMMIT_TAG#v}"
+  script:
+    # ⚠️ 嚴格維持 build → rm -f → run 順序，這是關鍵安全性質：
+    #    先 build 新映像，build 失敗會在此中止（docker:27 entrypoint 預設 set -e），
+    #    舊容器完全不動、服務不中斷；只有 build 成功後才會 rm -f 舊容器並以新映像重啟。
+    #    ⚠️ dashboard 是整個平台的對外唯一入口（port 8002）＋ 反向代理閘道：
+    #    rm→run 之間對外會短暫中斷數秒，但 build 失敗時舊閘道續跑，把風險降到最低
+    #    （與手動 ./run.sh 重啟一樣）。切勿調換順序。
+    - docker build -f docker/Dockerfile -t "$IMAGE:$VERSION" -t "$IMAGE:latest" .
+    - docker rm -f "$CONTAINER" || true
+    # ⚠️ dashboard 是唯一對外 publish port 的服務：--publish 127.0.0.1:8002:8000
+    #    （容器內 8000 → host 8002，僅綁 127.0.0.1）。務必保留此 port mapping，
+    #    否則平台對外入口會消失。
+    - docker run -d
+        --name "$CONTAINER"
+        --restart=always
+        --network db_network
+        --publish 127.0.0.1:8002:8000
+        --volume "$LOGS_VOLUME:$LOGS_PATH"
+        "$IMAGE:latest"
+    # 清掉 build 過程留下的 dangling 映像，避免主機磁碟堆積
+    - docker image prune -f || true
+
+# ── mirror：把 main 與該版本 tag 一併推送到 GitHub ─────────────────
 mirror-to-github:
   stage: mirror
   image: alpine:3.20
+  needs: []                       # 與 deploy 互不相依、並行執行
   variables:
     GIT_DEPTH: 0                                       # 完整歷史，確保可 fast-forward 推送
     GITHUB_REPO: "git@github.com:nk7260ynpa/Tw_stock_dashboard.git"
