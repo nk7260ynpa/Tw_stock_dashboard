@@ -234,28 +234,35 @@ git push origin v1.0.0
 | `DOCKER_USERNAME` | DockerHub 帳號 |
 | `DOCKER_PASSWORD` | DockerHub 密碼或 Access Token |
 
-### GitLab Flow（Harbor 自架）
+### GitLab Flow（自架 GitLab，tag 觸發本地 build 部署）
 
-`.gitlab-ci.yml` 在自架 GitLab 上實作 GitLab Flow，將建置、升版、部署串成完整流程，
-最終把 image 推送至 Harbor 並自動部署。
+`.gitlab-ci.yml` 採與全系統其餘服務一致的統一範本：在 `main` 打上 `vX.Y.Z` 版本 tag 時，
+`deploy` 與 `mirror` 兩個 job **各自 `needs: []`、互不相依、並行執行**（合併進 `main`
+當下不觸發任何 job）。
 
 | 階段 | 觸發條件 | 行為 |
 |------|----------|------|
-| `build` | 於 `main` 推送 `v*.*.*` tag | 建置 image，推送 `<版本號>` 與 `latest` 至 Harbor |
-| `promote` | 推送 `production` 分支 | 將 Harbor 的 `latest` 重新打上 `production` 標籤推回 |
-| `deploy` | 推送 `production` 分支 | 拉取 `production` image，重啟 `tw_stock_dashboard` 容器 |
+| `deploy` | 於 `main` 推送 `v*.*.*` tag | 於 host daemon 本地 `docker build` 新 image（同時打 `<版本號>` 與 `latest`）→ `rm -f` 舊容器 → 以 `--restart=always --network db_network --publish 127.0.0.1:8002:8000` 重啟 `tw_stock_dashboard` 容器 |
 | `mirror` | 於 `main` 推送 `v*.*.*` tag | 把 `main` 與該 tag 一併鏡像推送至 GitHub（合併進 `main` 當下不鏡像） |
 
-典型流程：在 `main` 開發並打版本 tag（產生 `latest`）→ 將 `main` 合併進 `production`
-分支 → `promote` 升版、`deploy` 自動部署上線。
+`deploy` 嚴格維持 **`docker build` → `docker rm -f` → `docker run`** 順序：先 build 新 image，
+**build 失敗即中止、舊容器完全不動、服務不中斷**，只有 build 成功後才換新容器。dashboard
+是整個平台的對外唯一入口（port 8002）＋ 反向代理閘道，`rm→run` 之間對外會短暫中斷數秒，
+但 build 失敗時舊閘道續跑，把風險降到最低（與手動 `./run.sh` 重啟等價）。
 
-必要的 Runner 環境變數（由 GitLab Runner 注入，未進版控）：
+> **保留對外 port（關鍵）**：dashboard 是唯一對外 `publish` port 的服務，`deploy` 必帶
+> `--publish 127.0.0.1:8002:8000`（容器內 8000 → host 8002，僅綁 127.0.0.1），否則平台
+> 對外入口會消失。
 
-| 變數 | 說明 |
-|------|------|
-| `HARBOR_USERNAME` | Harbor 帳號 |
-| `HARBOR_PASSWORD` | Harbor 密碼 |
-| `HARBOR_REGISTRY` | Harbor registry 位址（例：`127.0.0.1:8081`） |
+> **查 log**：經 CI 部署的容器 log 落在**具名 volume `tw_stock_dashboard_logs`**（掛到
+> `/app/logs`），**不在** repo 的 `logs/`。請用 `docker logs tw_stock_dashboard`，或讀具名
+> volume（`docker run --rm -v tw_stock_dashboard_logs:/logs alpine cat /logs/<檔名>.log`）。
+> repo 的 `logs/` 只有以 `run.sh` 手動啟動（bind mount）時才有內容。
+
+**Runner 前提**：GitLab Runner 為 docker executor 且掛載 `/var/run/docker.sock`（socket
+綁定），故 `deploy` job 內的 `docker` 指令直接作用在 host daemon——build 出來的映像、run
+起來的容器都落在主機，與手動執行 `docker/build.sh` + `run.sh` 等價，無需 Harbor 或任何
+registry 認證。`mirror` job 則需 Runner 注入 `GITHUB_SSH_KEY`（帳號層級通用金鑰，未進版控）。
 
 ## 授權條款
 
