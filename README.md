@@ -244,6 +244,7 @@ git push origin v1.0.0
 | `build` | 於 `main` 推送 `v*.*.*` tag | 建置 image，推送 `<版本號>` 與 `latest` 至 Harbor |
 | `promote` | 推送 `production` 分支 | 將 Harbor 的 `latest` 重新打上 `production` 標籤推回 |
 | `deploy` | 推送 `production` 分支 | 拉取 `production` image，重啟 `tw_stock_dashboard` 容器 |
+| `mirror` | 於 `main` 推送 `v*.*.*` tag | 把 `main` 與該 tag 一併鏡像推送至 GitHub（合併進 `main` 當下不鏡像） |
 
 典型流程：在 `main` 開發並打版本 tag（產生 `latest`）→ 將 `main` 合併進 `production`
 分支 → `promote` 升版、`deploy` 自動部署上線。
